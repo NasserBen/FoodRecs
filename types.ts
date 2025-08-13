@@ -1,16 +1,19 @@
-export interface Book {
-  isbn13: string;
-  isbn10: string;
-  title: string;
-  subtitle: string;
-  authors: string;
-  categories: string;
-  thumbnail: string;
-  description: string;
-  published_year: string;
-  average_rating: string;
-  num_pages: string;
-  ratings_count: string;
+export interface Restaurant {
+  name: string;
+  rating: string;
+  user_ratings_total: string;
+  price_level: string;
+  vicinity: string;
+  formatted_address: string;
+  place_id: string;
+  types: string;
+  business_status: string;
+  formatted_phone_number: string;
+  website: string;
+  opening_hours: string;
+  reviews_count: string;
+  category: string;
+  generated_review: string;
   _additional: AdditionalType;
 }
 

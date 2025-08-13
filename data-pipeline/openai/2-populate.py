@@ -2,56 +2,67 @@ import os
 import csv
 import weaviate
 import weaviate.classes as wvc
+from dotenv import load_dotenv
 
-WEAVIATE_CLUSTER_URL = os.getenv('WEAVIATE_CLUSTER_URL') or 'https://zxzyqcyksbw7ozpm5yowa.c0.us-west2.gcp.weaviate.cloud'
-WEAVIATE_API_KEY = os.getenv('WEAVIATE_API_KEY') or 'n6mdfI32xrXF3DH76i8Pwc2IajzLZop2igb6'
+load_dotenv()
+
+WEAVIATE_CLUSTER_URL = os.getenv('WEAVIATE_CLUSTER_URL') or 'https://aeeos2xyr1ki5hjsu32quw.c0.us-west3.gcp.weaviate.cloud'
+WEAVIATE_API_KEY = os.getenv('WEAVIATE_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-client = weaviate.Client(
-    url=WEAVIATE_CLUSTER_URL,
-    auth_client_secret=weaviate.AuthApiKey(api_key=WEAVIATE_API_KEY),
-    additional_headers={"X-OpenAI-Api-Key": OPENAI_API_KEY})
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=WEAVIATE_CLUSTER_URL,
+    auth_credentials=wvc.init.Auth.api_key(WEAVIATE_API_KEY),
+    headers={"X-OpenAI-Api-Key": OPENAI_API_KEY}
+)
 
-book_collection = client.collections.get(name="Book")
+restaurant_collection = client.collections.get("Restaurant")
 
-f = open("./data-pipeline/7k-books-kaggle.csv", "r")
-current_book = None
+f = open("../../data/sf_restaurants.csv", "r")
+current_restaurant = None
 try:
     reader = csv.reader(f)
+    next(reader)  # Skip header row
     # Iterate through each row of data
-    for book in reader:
-      current_book = book
-      # 0 - isbn13
-      # 1 - isbn10
-      # 2 - title
-      # 3 - subtitle
-      # 4 - authors
-      # 5 - categories
-      # 6 - thumbnail
-      # 7 - description
-      # 8 - published_year
-      # 9 - average_rating
-      # 10 - num_pages
-      # 11 - ratings_count
+    for restaurant in reader:
+      current_restaurant = restaurant
+      # 0 - name
+      # 1 - rating
+      # 2 - user_ratings_total
+      # 3 - price_level
+      # 4 - vicinity
+      # 5 - formatted_address
+      # 6 - place_id
+      # 7 - types
+      # 8 - business_status
+      # 9 - formatted_phone_number
+      # 10 - website
+      # 11 - opening_hours
+      # 12 - reviews_count
+      # 13 - category
+      # 14 - generated_review
 
       properties = {
-          "isbn13": book[0],
-          "isbn10": book[1],
-          "title": book[2],
-          "subtitle": book[3],
-          "authors": book[4],
-          "categories": book[5],
-          "thumbnail": book[6],
-          "description": book[7],
-          "published_year": book[8],
-          "average_rating": book[9],
-          "num_pages": book[10],
-          "ratings_count": book[11],
+          "name": restaurant[0],
+          "rating": restaurant[1],
+          "user_ratings_total": restaurant[2],
+          "price_level": restaurant[3],
+          "vicinity": restaurant[4],
+          "formatted_address": restaurant[5],
+          "place_id": restaurant[6],
+          "types": restaurant[7],
+          "business_status": restaurant[8],
+          "formatted_phone_number": restaurant[9],
+          "website": restaurant[10],
+          "opening_hours": restaurant[11],
+          "reviews_count": restaurant[12],
+          "category": restaurant[13],
+          "generated_review": restaurant[14],
       }
 
-      uuid = book_collection.data.insert(properties)      
+      uuid = restaurant_collection.data.insert(properties)      
 
-      print(f"{book[2]}: {uuid}", end='\n')
+      print(f"{restaurant[0]}: {uuid}", end='\n')
 except Exception as e:
   print(f"Exception: {e}.")
 

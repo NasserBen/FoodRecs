@@ -1,31 +1,34 @@
 import os
 import weaviate
-from weaviate.classes.init import AdditionalConfig, Timeout
+import weaviate.classes as wvc
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-WEAVIATE_CLUSTER_URL = os.getenv('WEAVIATE_CLUSTER_URL') or 'https://zxzyqcyksbw7ozpm5yowa.c0.us-west2.gcp.weaviate.cloud'
-WEAVIATE_API_KEY = os.getenv('WEAVIATE_API_KEY') or 'n6mdfI32xrXF3DH76i8Pwc2IajzLZop2igb6'
+WEAVIATE_CLUSTER_URL = os.getenv('WEAVIATE_CLUSTER_URL') or 'https://aeeos2xyr1ki5hjsu32quw.c0.us-west3.gcp.weaviate.cloud'
+WEAVIATE_API_KEY = os.getenv('WEAVIATE_API_KEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-client = weaviate.Client(
-    url=WEAVIATE_CLUSTER_URL,
-    auth_client_secret=weaviate.AuthApiKey(api_key=WEAVIATE_API_KEY),
-    additional_headers={"X-OpenAI-Api-Key": OPENAI_API_KEY})
+client = weaviate.connect_to_weaviate_cloud(
+    cluster_url=WEAVIATE_CLUSTER_URL,
+    auth_credentials=wvc.init.Auth.api_key(WEAVIATE_API_KEY),
+    headers={"X-OpenAI-Api-Key": OPENAI_API_KEY}
+)
 
-print(client.is_connected())
+print(client.is_ready())
 
-book_collection = client.collections.get(name="Book")
+restaurant_collection = client.collections.get("Restaurant")
 
 # Generative Search
 
-response = book_collection.generate.near_text(
-    query="technology, data structures and algorithms, distributed systems",
+response = restaurant_collection.generate.near_text(
+    query="italian pasta, seafood, fine dining",
     limit=2,
-    single_prompt="Explain why this book might be interesting to someone who likes playing the violin, rock climbing, and doing yoga. the book's title is {title}, with a description: {description}, and is in the genre: {categories}."
+    single_prompt="Explain why this restaurant might be perfect for someone who enjoys fine dining and is looking for a romantic dinner spot. The restaurant name is {name}, category: {category}, location: {vicinity}, and review: {generated_review}."
 )
 
 
 print(response.objects[0].generated)  # Inspect the first object
+
+client.close()

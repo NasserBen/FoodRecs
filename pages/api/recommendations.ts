@@ -30,8 +30,8 @@ export default async function handler(
         
         const client: WeaviateClient = weaviate.client({
           scheme: 'https',
-          host: weaviateClusterUrl || 'zxzyqcyksbw7ozpm5yowa.c0.us-west2.gcp.weaviate.cloud',
-          apiKey: new ApiKey(process.env.WEAVIATE_API_KEY || 'n6mdfI32xrXF3DH76i8Pwc2IajzLZop2igb6'), //READONLY API Key, ensure the environment variable is an Admin key to support writing
+          host: weaviateClusterUrl || 'recommender.c0.us-west3.gcp.weaviate.cloud',
+          apiKey: new ApiKey(process.env.WEAVIATE_API_KEY || ''), 
           headers: headers,
         });
 
@@ -43,13 +43,13 @@ export default async function handler(
 
         nearText.concepts = query;
 
-        let generatePrompt = "Briefly describe why this book might be interesting to someone who has interests or hobbies in " + userInterests + ". the book's title is {title}, with a description: {description}, and is in the genre: {categories}. Don't make up anything that wasn't given in this prompt and don't ask how you can help.";
+        let generatePrompt = "Briefly describe why this restaurant might be perfect for someone who has interests or preferences in " + userInterests + ". the restaurant's name is {name}, category: {category}, location: {vicinity}, and review: {generated_review}. Don't make up anything that wasn't given in this prompt and don't ask how you can help.";
 
         let recDataBuilder = client.graphql
           .get()
-          .withClassName('Book')
+          .withClassName('Restaurant')
           .withFields(
-            'title isbn10 isbn13 categories thumbnail description num_pages average_rating published_year authors'
+            'name rating user_ratings_total price_level vicinity formatted_address place_id types business_status formatted_phone_number website opening_hours reviews_count category generated_review'
           )
           .withNearText(nearText)
           .withLimit(20);
