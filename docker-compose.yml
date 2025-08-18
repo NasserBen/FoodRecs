@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  data-pipeline:
+    build: .
+    container_name: food-recs-pipeline
+    volumes:
+      - ./.env:/app/.env:ro
+      - ./data:/app/data:ro
+      - ./data-pipeline:/app/data-pipeline:ro
+    environment:
+      - PYTHONUNBUFFERED=1 

@@ -18,7 +18,7 @@ client = weaviate.connect_to_weaviate_cloud(
 
 restaurant_collection = client.collections.get("Restaurant")
 
-f = open("../../data/sf_restaurants.csv", "r")
+f = open("./data/sf_restaurants.csv", "r")
 current_restaurant = None
 try:
     reader = csv.reader(f)
